@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GTA: One Agent to Guide Them All</title>
+<meta name="description" content="Empowering MLLMs for Vision-and-Language Navigation via Explicit World Representation. CoRL 2026.">
+<meta property="og:title" content="GTA: One Agent to Guide Them All">
+<meta property="og:description" content="Zero-shot vision-and-language navigation with an explicit, queryable world representation. CoRL 2026.">
+<meta property="og:image" content="fig1_teaser.png">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F7F9F8;
+    --panel: #FFFFFF;
+    --ink: #15262B;
+    --ink-2: #4A5C62;
+    --rule: #D5DEDC;
+    --accent: #1F8A73;
+    --accent-ink: #15614F;
+    --accent-wash: #E4F1EC;
+    --measure: 46rem;
+    --wide: 68rem;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent-ink); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  /* ---- layout ---- */
+  .wrap { width: min(100% - 2.5rem, var(--measure)); margin-inline: auto; }
+  .wide { width: min(100% - 2.5rem, var(--wide)); margin-inline: auto; }
+  section { margin-block: 4.5rem; }
+  h1, h2, h3 { font-family: "Newsreader", Georgia, serif; font-weight: 500; line-height: 1.15; margin: 0; letter-spacing: -0.005em; }
+  h2 { font-size: 1.9rem; margin-bottom: 1.1rem; }
+  h3 { font-size: 1.25rem; margin-top: 1.8rem; margin-bottom: 0.4rem; }
+  p { margin: 0 0 1rem; }
+  p + p { margin-top: 0; }
+
+  /* ---- hero ---- */
+  header { padding-top: 4.5rem; text-align: center; }
+  .venue { color: var(--ink-2); font-size: 0.95rem; margin-bottom: 1rem; }
+  header h1 { font-size: clamp(2.1rem, 4.6vw, 3.4rem); max-width: 30ch; margin-inline: auto; text-wrap: balance; }
+  header h1 small { display: block; font-size: 0.5em; font-weight: 400; color: var(--ink-2); margin-top: 0.55rem; letter-spacing: 0; }
+  .authors { margin-top: 1.6rem; font-size: 1.05rem; line-height: 1.8; }
+  .authors a { color: inherit; text-decoration: none; }
+  .authors a:hover { color: var(--accent); }
+  .authors sup { font-size: 0.65em; color: var(--ink-2); margin-left: 0.1em; }
+  .affil { color: var(--ink-2); font-size: 0.92rem; line-height: 1.6; margin-top: 0.4rem; }
+  .affil sup { font-size: 0.75em; }
+  .links { display: flex; flex-wrap: wrap; gap: 0.55rem; justify-content: center; margin-top: 1.8rem; }
+  .links a {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    padding: 0.55rem 1.05rem; border-radius: 999px;
+    background: var(--ink); color: var(--paper); text-decoration: none; font-weight: 500; font-size: 0.95rem;
+  }
+  .links a:hover { background: var(--accent-ink); color: #fff; }
+  .links a svg { width: 1em; height: 1em; fill: currentColor; }
+
+  .teaser { margin-top: 3rem; text-align: left; }
+  .teaser figure { margin: 0; }
+  figure img { display: block; width: 100%; height: auto; border-radius: 6px; background: var(--panel); }
+  figcaption { color: var(--ink-2); font-size: 0.92rem; line-height: 1.55; margin-top: 0.7rem; max-width: var(--measure); text-align: left; }
+  figcaption b { color: var(--ink); font-weight: 600; }
+  .panel img { border: 1px solid var(--rule); padding: 0.6rem; }
+
+  /* ---- abstract ---- */
+  .lead { font-family: "Newsreader", Georgia, serif; font-size: 1.28rem; line-height: 1.5; }
+
+  /* ---- results ---- */
+  .numbers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem 2rem; margin: 1.6rem 0 2.2rem; }
+  .numbers div { border-top: 2px solid var(--accent); padding-top: 0.7rem; }
+  .numbers strong { display: block; font-family: "Newsreader", Georgia, serif; font-size: 2.3rem; font-weight: 500; line-height: 1; color: var(--accent-ink); }
+  .numbers span { display: block; color: var(--ink-2); font-size: 0.92rem; margin-top: 0.45rem; line-height: 1.4; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.95rem; margin: 1.2rem 0 0.5rem; }
+  thead th { text-align: left; font-weight: 600; border-bottom: 1.5px solid var(--ink); padding: 0.45rem 0.6rem; }
+  tbody td { padding: 0.42rem 0.6rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: 1.5px solid var(--ink); }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr.ours td { background: var(--accent-wash); font-weight: 600; }
+  .tnote { color: var(--ink-2); font-size: 0.88rem; }
+
+  /* ---- videos ---- */
+  .videos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-top: 1.4rem; }
+  .video { margin: 0; }
+  .video .frame { position: relative; aspect-ratio: 16 / 9; background: #0e1517; border-radius: 6px; overflow: hidden; }
+  .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .video figcaption { margin-top: 0.5rem; }
+  .video figcaption em { font-style: italic; color: var(--ink); }
+  .single .frame { aspect-ratio: 16 / 9; }
+
+  /* ---- release ---- */
+  .files { list-style: none; padding: 0; margin: 1rem 0 0; }
+  .files li { padding: 0.65rem 0; border-top: 1px solid var(--rule); display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: baseline; }
+  .files li:last-child { border-bottom: 1px solid var(--rule); }
+  .files code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.86rem; color: var(--ink-2); }
+  .files li span { color: var(--ink-2); font-size: 0.92rem; }
+
+  /* ---- bibtex ---- */
+  .bib { position: relative; background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 1.1rem 1.2rem; overflow-x: auto; }
+  .bib pre { margin: 0; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.86rem; line-height: 1.55; }
+  .bib button {
+    position: absolute; top: 0.7rem; right: 0.7rem;
+    font: inherit; font-size: 0.85rem; font-weight: 500; font-family: "IBM Plex Sans", sans-serif;
+    background: var(--paper); color: var(--ink); border: 1px solid var(--rule); border-radius: 999px; padding: 0.3rem 0.8rem; cursor: pointer;
+  }
+  .bib button:hover { border-color: var(--accent); color: var(--accent-ink); }
+
+  footer { margin: 5rem 0 3rem; color: var(--ink-2); font-size: 0.92rem; }
+  footer p { margin-bottom: 0.4rem; }
+
+  @media (max-width: 720px) {
+    body { font-size: 16px; }
+    .numbers, .videos { grid-template-columns: 1fr; }
+    .files li { grid-template-columns: 1fr; gap: 0.2rem; }
+    section { margin-block: 3.2rem; }
+    header { padding-top: 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <div class="venue">Conference on Robot Learning (CoRL) 2026 &nbsp;|&nbsp; Austin, Texas</div>
+  <h1>One Agent to Guide Them All
+    <small>Empowering MLLMs for Vision-and-Language Navigation via Explicit World Representation</small>
+  </h1>
+  <div class="authors">
+    <a href="#">Zerui Li</a><sup>1</sup>,
+    <a href="#">Hongpei Zheng</a><sup>FILL</sup>,
+    <a href="#">Fangguo Zhao</a><sup>FILL</sup>,
+    <a href="#">Yanyan Shao</a><sup>FILL</sup>,
+    <a href="#">Jian Zhou</a><sup>FILL</sup>,
+    <a href="#">Sihao Lin</a><sup>FILL</sup>,
+    <a href="#">Shijie Li</a><sup>FILL</sup>,
+    <a href="#">Qi Wu</a><sup>1</sup>
+  </div>
+  <div class="affil"><sup>1</sup>Australian Institute for Machine Learning, The University of Adelaide &nbsp; <sup>FILL</sup>Affiliation</div>
+
+  <nav class="links" aria-label="Resources">
+    <a href="GTA_CoRL2026.pdf"><svg viewBox="0 0 16 16"><path d="M4 1h6l3 3v11H4zm5 1v3h3M6 8h4v1H6zm0 2.5h4v1H6z"/></svg>Paper</a>
+    <a href="https://github.com/zeruili22/GTA"><svg viewBox="0 0 16 16"><path d="M8 .5a7.5 7.5 0 0 0-2.4 14.6c.4.1.5-.2.5-.4v-1.5c-2.1.5-2.5-1-2.5-1-.3-.9-.8-1.1-.8-1.1-.7-.5.1-.5.1-.5.8.1 1.2.8 1.2.8.7 1.2 1.8.8 2.2.6.1-.5.3-.8.5-1-1.7-.2-3.4-.8-3.4-3.7 0-.8.3-1.5.8-2-.1-.2-.3-1 .1-2 0 0 .6-.2 2.1.8a7 7 0 0 1 3.8 0c1.4-1 2.1-.8 2.1-.8.4 1 .2 1.8.1 2 .5.5.8 1.2.8 2 0 2.9-1.8 3.5-3.4 3.7.3.2.5.7.5 1.4v2.1c0 .2.1.5.5.4A7.5 7.5 0 0 0 8 .5z"/></svg>Code</a>
+    <a href="#videos"><svg viewBox="0 0 16 16"><path d="M2 3h8a1 1 0 0 1 1 1v1.8l3-1.8v8l-3-1.8V12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/></svg>Videos</a>
+    <a href="#release"><svg viewBox="0 0 16 16"><path d="M8 1v8.6l2.8-2.8.9.9L8 11.4 4.3 7.7l.9-.9L8 9.6zM2 12h12v2H2z"/></svg>Data &amp; prompts</a>
+    <a href="#bibtex"><svg viewBox="0 0 16 16"><path d="M3 2h10v12H3zm2 2v1.2h6V4zm0 2.6v1.2h6V6.6zm0 2.6v1.2h4V9.2z"/></svg>BibTeX</a>
+  </nav>
+
+</header>
+
+<div class="teaser wide">
+    <figure>
+      <img src="fig1_teaser.png" alt="Left: an existing MLLM navigation agent guesses the room layout implicitly from a text memory and matches local views reactively, ending at the wrong place. Right: GTA keeps an explicit spatial-temporal memory and reasons over spatial history, reaching the goal." width="1235" height="403">
+      <figcaption><b>Same instruction, two memories.</b> Prior MLLM agents (left) reduce the 3D environment to a linearized text memory and guess the layout implicitly. GTA (right) maintains an explicit spatial-temporal memory and reasons over it, so spatial errors no longer propagate into semantic decisions.</figcaption>
+    </figure>
+</div>
+
+<section class="wrap" id="abstract">
+  <h2>Abstract</h2>
+  <p class="lead">A navigable agent must understand both high-level semantic instructions and precise spatial structure. Multimodal large language models, with their strong generalization, are a promising foundation for such agents, but relying on egocentric RGB alone forces them to infer global layout implicitly and hallucinate it.</p>
+  <p>We propose a decoupled design that separates low-level spatial state estimation from high-level semantic planning. Unlike prior methods that rely on predefined, oversimplified textual maps, GTA introduces an explicit metric world representation that maintains rich and consistent information, allowing the MLLM to query and reason over it for decision-making. We further introduce counterfactual reasoning to elicit the MLLM's capacity, while the world representation ensures the physical validity of the produced actions. Across simulated and real-world environments, GTA establishes a new zero-shot state of the art, reaching 48.8% success on R2R-CE and 46.2% on RxR-CE, and transfers without modification to a wheeled robot, a quadruped, and a drone.</p>
+</section>
+
+<section class="wide" id="method">
+  <div class="wrap" style="margin-inline:auto">
+    <h2>How GTA works</h2>
+    <p>A frozen MLLM cannot operate on a 3D map directly. GTA splits the problem into three parts: a mapping module that builds the world representation at high frequency, an interface that serializes it into a multimodal prompt on demand, and a reasoning loop that treats navigation as a search over branches rather than a single greedy step.</p>
+  </div>
+  <figure class="panel" style="margin:1.8rem 0 0">
+    <img src="fig2_overview.png" alt="Overview of the GTA framework: an environment and perception module fuses RGB-D into a TSDF volume and topological graph; an interactive interface serializes them into a multimodal prompt with a map view, egocentric views, instruction, dynamic checklist and history; a counterfactual reasoning brain driven by a frozen MLLM imagines branches, checkpoints, and backtracks; spatial action decoding ray-casts the chosen pixel onto the TSDF to produce a metric waypoint." width="1227" height="513">
+    <figcaption>The mapping module (left) fuses RGB-D streams into a TSDF volume and a topological graph. The interface (middle) renders them into a map view and four egocentric views with a coordinate grid, alongside the instruction, a dynamic checklist, and history. The counterfactual reasoning brain (right) checkpoints at branch points, verifies expectations against later observations, and backtracks when they are violated. The chosen pixel is ray-cast onto the TSDF surface, so every waypoint lands on real geometry.</figcaption>
+  </figure>
+  <div class="wrap" style="margin-inline:auto">
+    <h3>Explicit world representation</h3>
+    <p>Depth is fused into a TSDF whose zero-level set is the scene surface; the visited trajectory is kept as a topological graph with per-node visit counts. The MLLM sees both as images, and queries them at every decision instead of reading a passive text summary. Egocentric views carry appearance for open-vocabulary grounding; the map view carries metric structure for precise coordinates.</p>
+    <h3>Predictor-free action grounding</h3>
+    <p>The MLLM selects a view and a pixel. That pixel is ray-cast against the TSDF to obtain a metric waypoint, so any visible surface point is a valid target. No learned waypoint predictor is needed, which is what lets the same system transfer across simulators, environments, and robot bodies.</p>
+    <h3>Counterfactual reasoning</h3>
+    <p>At a branch point the MLLM writes down what it expects to see along each direction and pushes a checkpoint. When a later observation contradicts the stored expectation, the agent returns to the checkpoint, blocks the failed direction, and re-decides over the remaining ones. In our ablation this expectation check is the single largest contributor to success rate.</p>
+  </div>
+  <figure class="panel" style="margin:2rem 0 0">
+    <img src="fig3_episode.png" alt="Eight steps of a navigation episode in R2R-CE: the top row shows the agent's world representation from an elevated view with the planned trajectory in yellow and waypoints in blue; the bottom row shows the four selected egocentric views at each step." width="1236" height="323">
+    <figcaption>One R2R-CE episode, step by step. Top: the agent's world representation with the planned trajectory in yellow and waypoints in blue. Bottom: the four egocentric views the MLLM sees at each step.</figcaption>
+  </figure>
+</section>
+
+<section class="wrap" id="results">
+  <h2>Results</h2>
+  <div class="numbers">
+    <div><strong>48.8%</strong><span>Success rate on R2R-CE val-unseen (full 1,839-episode split), previous zero-shot best 41.0%.</span></div>
+    <div><strong>46.2%</strong><span>Success rate on RxR-CE, where prior zero-shot agents degrade sharply on long, fine-grained instructions.</span></div>
+    <div><strong>40–42%</strong><span>Real-world success across a wheeled robot, a quadruped, and a drone, with no per-platform tuning.</span></div>
+  </div>
+
+  <p>Zero-shot VLN-CE methods report on different episode subsets. The table below re-evaluates GTA under the exact protocol of the strongest prior method for each setting, and additionally reruns STRIDER with our GPT-5.1 backbone on the same 100 episodes.</p>
+  <table>
+    <thead><tr><th>Protocol</th><th>Strongest prior</th><th class="n">SR / SPL</th><th class="n">GTA SR / SPL</th></tr></thead>
+    <tbody>
+      <tr><td>R2R-CE, 100 episodes released by Open-Nav</td><td>STRIDER</td><td class="n">35.0 / 30.3</td><td class="n">47.0 / 38.8</td></tr>
+      <tr><td>&nbsp;&nbsp;same episodes, STRIDER rerun with GPT-5.1</td><td>STRIDER</td><td class="n">40.0 / 36.5</td><td class="n">47.0 / 38.8</td></tr>
+      <tr><td>R2R-CE, full val-unseen (1,839)</td><td>BZS-VLN</td><td class="n">41.0 / 25.4</td><td class="n">48.8 / 41.8</td></tr>
+      <tr><td>RxR-CE, 300 English episodes</td><td>BZS-VLN</td><td class="n">35.7 / 21.7</td><td class="n">46.0 / 37.9</td></tr>
+    </tbody>
+  </table>
+
+  <h3>What each reasoning mechanism contributes</h3>
+  <p>Each variant adds one mechanism on top of the previous one, on the 100-episode set, so adjacent rows isolate its contribution.</p>
+  <table>
+    <thead><tr><th>Variant</th><th class="n">SR</th><th class="n">SPL</th><th class="n">nDTW</th></tr></thead>
+    <tbody>
+      <tr><td>Greedy, no backtracking</td><td class="n">31.0</td><td class="n">27.1</td><td class="n">34.7</td></tr>
+      <tr><td>+ loop detection and backtracking</td><td class="n">37.0</td><td class="n">31.8</td><td class="n">45.6</td></tr>
+      <tr><td>+ checkpoint memory, without expectations</td><td class="n">39.0</td><td class="n">35.3</td><td class="n">49.3</td></tr>
+      <tr class="ours"><td>+ expectation checking (full GTA)</td><td class="n">47.0</td><td class="n">38.8</td><td class="n">53.6</td></tr>
+    </tbody>
+  </table>
+  <p class="tnote">Backtracking is triggered in 63% of episodes; 38.1% of episodes that backtrack at least once still succeed.</p>
+
+  <figure class="panel" style="margin:2.2rem 0 0">
+    <img src="fig4_wr.png" alt="Bar charts of OSR, SR and SPL for NavGPT and NavGPT with world representation on R2R and REVERIE, and for Open-Nav, SmartWay, their world-representation variants, and GTA on R2R-CE and REVERIE-CE. Adding the world representation improves every baseline and GTA leads on all continuous-environment metrics." width="1215" height="267">
+    <figcaption>Adding the world representation to existing agents (NavGPT, Open-Nav, SmartWay) improves every one of them, on the same episodes with the same GPT-5.1 backbone. The effect is largest on REVERIE-style object goals, which give no intermediate directional cues.</figcaption>
+  </figure>
+</section>
+
+<section class="wide" id="videos">
+  <div class="wrap" style="margin-inline:auto">
+    <h2>Real robots</h2>
+    <p>The same framework, with no platform-specific tuning, drives three physical embodiments in unseen real-world environments: a TurtleBot 4 wheeled base, a Unitree Go2 quadruped, and a custom quadrotor. The visual domain gap that cripples end-to-end methods (VLN-BERT 16%, RDP 20%) barely affects GTA, because its decisions are anchored on the synthesized map rather than on raw appearance.</p>
+  </div>
+  <div class="videos">
+    <figure class="video">
+      <div class="frame"><iframe src="https://www.youtube.com/embed/FILL_WHEELED_ID" title="Wheeled robot" loading="lazy" allowfullscreen></iframe></div>
+      <figcaption>Wheeled robot. <em>“Go straight and walk through the bins on both sides, turn left and stop in front of the cardboard mannequin.”</em></figcaption>
+    </figure>
+    <figure class="video">
+      <div class="frame"><iframe src="https://www.youtube.com/embed/FILL_QUADRUPED_ID" title="Quadruped" loading="lazy" allowfullscreen></iframe></div>
+      <figcaption>Quadruped. <em>“Go straight into the room, then turn left, stop at the red ladder.”</em></figcaption>
+    </figure>
+    <figure class="video">
+      <div class="frame"><iframe src="https://www.youtube.com/embed/FILL_DRONE_ID" title="Drone" loading="lazy" allowfullscreen></iframe></div>
+      <figcaption>Drone. <em>“Move to the front of the small colorful Chinese feather shuttlecock and stop.”</em></figcaption>
+    </figure>
+  </div>
+  <figure class="panel" style="margin:2rem auto 0; max-width: 52rem">
+    <img src="fig5_realrobot.png" alt="Frame sequences of the wheeled robot, the quadruped and the drone executing language instructions in real environments." width="1225" height="1733">
+    <figcaption>Frame sequences from the three platforms. Fifty trials were run per platform.</figcaption>
+  </figure>
+</section>
+
+<section class="wrap" id="release">
+  <h2>Reproduce our evaluation</h2>
+  <p>Everything needed to re-run the protocol-matched comparisons and ablations is in the repository, including the exact episode lists and the verbatim prompts for every ablation condition.</p>
+  <ul class="files">
+    <li><a href="https://github.com/zeruili22/GTA/blob/main/data/episodes/r2r_ce_opennav_100.json"><code>data/episodes/r2r_ce_opennav_100.json</code></a><span>100 R2R-CE episodes released by Open-Nav, used verbatim</span></li>
+    <li><a href="https://github.com/zeruili22/GTA/blob/main/data/episodes/rxr_ce_en_260_seed1024.json"><code>data/episodes/rxr_ce_en_260_seed1024.json</code></a><span>Scene-stratified English RxR-CE sample reported in the paper</span></li>
+    <li><a href="https://github.com/zeruili22/GTA/blob/main/data/episodes/rxr_ce_en_300.json"><code>data/episodes/rxr_ce_en_300.json</code></a><span>Uniform random English RxR-CE sample matching the BZS-VLN protocol</span></li>
+    <li><a href="https://github.com/zeruili22/GTA/blob/main/scripts/sample_rxr.py"><code>scripts/sample_rxr.py</code></a><span>Sampling script that regenerates both RxR-CE lists from the seeds</span></li>
+    <li><a href="https://github.com/zeruili22/GTA/blob/main/prompts/"><code>prompts/</code></a><span>Full prompt template, plus the w/o-PB and component-ablation variants</span></li>
+  </ul>
+</section>
+
+<section class="wrap" id="bibtex">
+  <h2>Citation</h2>
+  <div class="bib">
+    <button type="button" id="copybib">Copy</button>
+<pre id="bibtext">@inproceedings{li2026gta,
+  title     = {One Agent to Guide Them All: Empowering {MLLMs} for Vision-and-Language Navigation via Explicit World Representation},
+  author    = {Li, Zerui and Zheng, Hongpei and Zhao, Fangguo and Shao, Yanyan and Zhou, Jian and Lin, Sihao and Li, Shijie and Wu, Qi},
+  booktitle = {Conference on Robot Learning (CoRL)},
+  year      = {2026}
+}</pre>
+  </div>
+</section>
+
+<footer class="wrap">
+  <p>Questions about the paper or the released data: Zerui Li, <a href="mailto:FILL@adelaide.edu.au">FILL@adelaide.edu.au</a>.</p>
+  <p>Page source is in the <a href="https://github.com/zeruili22/GTA">GitHub repository</a>.</p>
+</footer>
+
+<script>
+  document.getElementById('copybib').addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
+    try {
+      await navigator.clipboard.writeText(document.getElementById('bibtext').textContent);
+      btn.textContent = 'Copied';
+    } catch { btn.textContent = 'Select and copy'; }
+    setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
+  });
+</script>
+</body>
+</html>
